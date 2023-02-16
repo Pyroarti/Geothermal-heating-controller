@@ -14,12 +14,14 @@ import json
 from datetime import datetime, date
 import time
 import requests
-#import RPi.GPIO as GPIO
 import schedule
+from threading import Thread
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+#import RPi.GPIO as GPIO
+
 
 #GPIO.setmode(GPIO.BCM)
 
@@ -29,8 +31,9 @@ def main(): # Main funcions
     energy_data = get_data()
     write_to_json(energy_data)
     price_threshold, temperature_threshold, data, temp_c = extract_data()
-    process_data(price_threshold, temperature_threshold, data, temp_c)
+    process_data(price_threshold, temperature_threshold, data, temp_c,)
     plot_data()
+    
 
 
 def get_data(): # Gets current energy price data in Sweden's energy zone 3. 
@@ -81,6 +84,7 @@ def extract_data(): # Calculate the percentile to get the lowest prices for the 
 
 # Loops thru the json file and find the matching hour with the current hour.
 def process_data(price_threshold, temperature_threshold, data, temp_c):
+    global is_running
     for item in data:
         start_time = item["time_start"]
         price_kwh = item["SEK_per_kWh"]
@@ -98,6 +102,8 @@ def process_data(price_threshold, temperature_threshold, data, temp_c):
                 "Temperature:", "Temperature:", temp_c,
                 "Threshold temperature:", temperature_threshold)
                 #GPIO.output(18, GPIO.HIGH)
+                is_running = True
+                
             else:
                 print("price or temp is not below threshold",
                 "Price:", price_kwh,
@@ -105,8 +111,11 @@ def process_data(price_threshold, temperature_threshold, data, temp_c):
                 "Temperature:", temp_c,
                 "Threshold temperature:", temperature_threshold)
                 #GPIO.output(18, GPIO.LOW)
+                is_running = False
         else:
             pass
+
+    return is_running
 
 
 def plot_data():
@@ -121,7 +130,10 @@ def plot_data():
         plt.show()
 
 
+
 schedule.every().second.do(main) # This code will run every hour
 while True:
     schedule.run_pending()
     time.sleep(5)
+
+
