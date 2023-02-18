@@ -1,3 +1,4 @@
+# -- coding: utf-8 --
 """
 
 This is a program to control a heat pump and make it work harder when the energy price is low.
@@ -84,7 +85,6 @@ def extract_data(): # Calculate the percentile to get the lowest prices for the 
 
 # Loops thru the json file and find the matching hour with the current hour.
 def process_data(price_threshold, temperature_threshold, data, temp_c):
-    global is_running
     for item in data:
         start_time = item["time_start"]
         price_kwh = item["SEK_per_kWh"]
@@ -96,26 +96,29 @@ def process_data(price_threshold, temperature_threshold, data, temp_c):
         if current_hour == hour:
             # Looks for if the price is low and temperature is low so the pump can work
             if price_kwh <= price_threshold and temp_c <= temperature_threshold:
-                print("Price and temp is below threshold:",
-                "Price:", price_kwh,
-                "Threshold_price:", price_threshold,
-                "Temperature:", "Temperature:", temp_c,
-                "Threshold temperature:", temperature_threshold)
                 #GPIO.output(18, GPIO.HIGH)
-                is_running = True
-                
+                app_data = {
+                "status": "Kör med extern styrning",
+                "Pris per kwh": price_kwh,
+                "Pris gräns": price_threshold,
+                "Ute temperatur": temp_c,
+                "Temperatur gräns": temperature_threshold
+                }
+                with open("app_data.json", "w") as outfile:
+                    json.dump(app_data, outfile)    
             else:
-                print("price or temp is not below threshold",
-                "Price:", price_kwh,
-                "Threshold_price:", price_threshold,
-                "Temperature:", temp_c,
-                "Threshold temperature:", temperature_threshold)
-                #GPIO.output(18, GPIO.LOW)
-                is_running = False
+                app_data = {
+                "status": "Körs inte med extern styrning",
+                "Pris per kwh": price_kwh,
+                "Pris gräns": price_threshold,
+                "Ute temperatur": temp_c,
+                "Temperatur gräns": temperature_threshold
+                }
+                with open("app_data.json", "w") as outfile:
+                    json.dump(app_data, outfile)
         else:
             pass
 
-    return is_running
 
 
 def plot_data():

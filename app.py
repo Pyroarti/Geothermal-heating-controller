@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 def get_data():
     # Your code to retrieve the data goes here
     # For example: 
-    with open('price.json', mode='r', encoding="utf8") as read_file:
+    with open('app_data.json', mode='r', encoding="utf8") as read_file:
             data = json.load(read_file)
             client_ip = request.remote_addr
             app.logger.info(f'Request received from {client_ip}')
