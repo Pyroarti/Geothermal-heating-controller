@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request, send_file
 import json
 import logging
 
@@ -15,6 +15,10 @@ def get_data():
             client_ip = request.remote_addr
             app.logger.info(f'Request received from {client_ip}')
             return (data)
+
+@app.route('/graph')
+def graph():
+    return send_file('graph.png', mimetype='image/png')
 
 if __name__ == '__main__':
     from waitress import serve

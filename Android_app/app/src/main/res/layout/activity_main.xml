@@ -9,14 +9,23 @@
 
     <TextView
         android:id="@+id/responseTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="357dp"
+        android:layout_height="209dp"
         android:padding="16dp"
         android:textColor="#ffffff"
         android:textSize="18sp"
         tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="60dp" />
+        tools:layout_editor_absoluteX="29dp"
+        tools:layout_editor_absoluteY="50dp" />
+
+    <ImageView
+        android:id="@+id/graphImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,10 +1,12 @@
 package com.example.heating_controller
 
 import android.content.Context
+import android.content.Intent
 import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
@@ -16,26 +18,34 @@ import java.net.URLDecoder
 import javax.security.auth.login.LoginException
 import com.google.gson.GsonBuilder
 import org.json.JSONObject
+import com.squareup.picasso.Picasso
+import android.widget.ImageView
 
 
 class MainActivity : AppCompatActivity() {
 
 
-    val url: String = "http://192.168.0.188:7777"
+
+    val mainURL: String = "http://192.168.0.188:7777"
+    val graphURL: String = "http://192.168.0.188:7777/graph"
     lateinit var responseTextView: TextView
+    lateinit var graphImageView: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         responseTextView = findViewById<TextView>(R.id.responseTextView)
-
+        graphImageView = findViewById<ImageView>(R.id.graphImageView)
         getData()
+
+
+
 
     }
 
     fun getData() {
         val queue = Volley.newRequestQueue(this)
-        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null,
+        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, mainURL, null,
             { response ->
                 val mapper = ObjectMapper()
                 mapper.enable(SerializationFeature.INDENT_OUTPUT)
@@ -47,6 +57,7 @@ class MainActivity : AppCompatActivity() {
                     it.write(fileContents.toByteArray())
                 }
                 responseTextView.text = fileContents
+                Log.e("Volley", "Made it:")
             },
             { error ->
                 Log.e("Volley", "Error: ${error.message}")
@@ -54,13 +65,9 @@ class MainActivity : AppCompatActivity() {
         )
 
         queue.add(jsonObjectRequest)
+
+        val picasso = Picasso.get()
+        picasso.load(graphURL).into(graphImageView)
     }
-
-
-
-
-
-
-
-
 }
+

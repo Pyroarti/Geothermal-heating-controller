@@ -33,7 +33,7 @@ def main(): # Main funcions
     write_to_json(energy_data)
     price_threshold, temperature_threshold, data, temp_c = extract_data()
     process_data(price_threshold, temperature_threshold, data, temp_c,)
-    plot_data()
+    plot_data(price_threshold)
     
 
 
@@ -77,7 +77,7 @@ def extract_data(): # Calculate the percentile to get the lowest prices for the 
         today_price_list.append(result)
 
     numpy_today_price = np.array(today_price_list)
-    price_threshold = np.percentile(numpy_today_price, 20) # Lowest 20%
+    price_threshold = np.percentile(numpy_today_price, 40) # Lowest 40%
     weather_data = get_weather()
     temp_c = weather_data["current"]["temp_c"]
     temperature_threshold = 16 # Will make it possible to set it on the phone app.
@@ -121,22 +121,27 @@ def process_data(price_threshold, temperature_threshold, data, temp_c):
 
 
 
-def plot_data():
+def plot_data(price_threshold):
     plt.style.use('dark_background')
     with open('price.json', 'r', encoding="utf8") as outfile:
         data = json.load(outfile)
         data_frame = pd.DataFrame(data)
         data_frame['hour'] = data_frame['time_start'].apply(lambda x:
         datetime.strptime(x, '%Y-%m-%dT%H:%M:%S%z').hour)
-        data_frame.plot(x='hour', y="SEK_per_kWh")
-        plt.xticks(np.arange(0, 24, 1))
-        plt.show()
-
+        markers_on = [1]
+        print(price_threshold)
+        ax = data_frame.plot(x='hour', y="SEK_per_kWh", markevery=markers_on)
+        ax.axhline(y=price_threshold, color='red', linestyle='--', label='Pris gräns')
+        plt.xticks(np.arange(0, 24, 2))
+        plt.xlabel('Timme på dagen')
+        plt.ylabel('Pris: SEK per kWh')
+        plt.legend()
+        plt.savefig('graph.png')
 
 
 schedule.every().second.do(main) # This code will run every hour
 while True:
     schedule.run_pending()
-    time.sleep(5)
+    time.sleep(10)
 
 
