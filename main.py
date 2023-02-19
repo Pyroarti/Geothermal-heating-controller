@@ -80,7 +80,9 @@ def extract_data(): # Calculate the percentile to get the lowest prices for the 
     price_threshold = np.percentile(numpy_today_price, 40) # Lowest 40%
     weather_data = get_weather()
     temp_c = weather_data["current"]["temp_c"]
-    temperature_threshold = 16 # Will make it possible to set it on the phone app.
+    with open('threshold.txt', mode='r') as f:
+        temperature_threshold = int(f.readline().strip())
+
     return price_threshold, temperature_threshold, data, temp_c
 
 # Loops thru the json file and find the matching hour with the current hour.
@@ -137,11 +139,14 @@ def plot_data(price_threshold):
         plt.ylabel('Pris: SEK per kWh')
         plt.legend()
         plt.savefig('graph.png')
+        plt.close('all')
+        plt.clf()
+        plt.cla()
 
 
 schedule.every().second.do(main) # This code will run every hour
 while True:
     schedule.run_pending()
-    time.sleep(10)
+    time.sleep(20)
 
 

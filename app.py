@@ -20,6 +20,16 @@ def get_data():
 def graph():
     return send_file('graph.png', mimetype='image/png')
 
+
+@app.route('/threshold', methods=['POST'])
+def set_threshold():
+    threshold = request.json['threshold'] 
+    with open('threshold.txt', mode='w', encoding="utf8") as file:
+        file.write(str(threshold))
+    app.logger.info(f'Threshold set to {threshold}')
+    return 'OK'
+
+
 if __name__ == '__main__':
     from waitress import serve
     serve(app, host='192.168.0.188', port=7777, url_scheme='https')

@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
@@ -15,7 +17,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Heating_Controller"
         tools:targetApi="31" >
-
 
         <activity
             android:name=".MainActivity"
