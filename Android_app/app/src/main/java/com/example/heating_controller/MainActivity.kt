@@ -31,18 +31,15 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-
-
 private const val NOTIFICATION_ID = 1
 private const val CHANNEL_ID = "com.example.heating_controller.channel"
 class MainActivity : AppCompatActivity() {
 
     val mainURL: String = "http://192.168.0.188:7777"
     val graphURL: String = "http://192.168.0.188:7777/graph"
+
     lateinit var responseTextView: TextView
     lateinit var graphImageView: ImageView
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,9 +59,7 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannel()
     }
 
-
-
-    fun getData() {
+    private fun getData() {
         val queue = Volley.newRequestQueue(this)
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, mainURL, null,
             { response ->
@@ -85,13 +80,12 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
-
         queue.add(jsonObjectRequest)
         val picasso = Picasso.get()
         picasso.load(graphURL).into(graphImageView)
     }
     @SuppressLint("MissingPermission")
-    fun setThreshold(editText: EditText) {
+    private fun setThreshold(editText: EditText) {
         val queue = Volley.newRequestQueue(this)
         val thresholdValue = editText.text.toString()
         val jsonBody = JSONObject()
@@ -100,22 +94,20 @@ class MainActivity : AppCompatActivity() {
         val jsonObjectRequest = JsonObjectRequest(Request.Method.POST, thresholdURL, jsonBody,
 
             { response ->
-                Log.e("Post", "Made it:")
-
 
             },
             { error ->
-                Log.e("postbio", "Error: ${error.message}")
+                Log.e("setThreshold", "Error: ${error.message}")
                 // Handle error response
             }
         )
         queue.add(jsonObjectRequest)
 
         // Handle success response
-        val message = "Threshold set to $thresholdValue"
+        val message = "Temperatur gräns är satt till $thresholdValue"
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Threshold Set")
+            .setContentTitle("Temperatur gräns")
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
@@ -124,11 +116,6 @@ class MainActivity : AppCompatActivity() {
             notify(NOTIFICATION_ID, notificationBuilder.build())
             Log.d("MainActivity", "Notification displayed")
         }
-
-
-
-
-
 
     }
     private fun createNotificationChannel() {
@@ -142,7 +129,6 @@ class MainActivity : AppCompatActivity() {
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
-
 
 }
 

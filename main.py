@@ -16,28 +16,24 @@ from datetime import datetime, date
 import time
 import requests
 import schedule
-from threading import Thread
+
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 #import RPi.GPIO as GPIO
 
-
 #GPIO.setmode(GPIO.BCM)
 
-
-def main(): # Main funcions
+def main():  # Main funcions
     #GPIO.cleanup()
     energy_data = get_data()
     write_to_json(energy_data)
     price_threshold, temperature_threshold, data, temp_c = extract_data()
     process_data(price_threshold, temperature_threshold, data, temp_c,)
     plot_data(price_threshold)
-    
 
-
-def get_data(): # Gets current energy price data in Sweden's energy zone 3. 
+def get_data(): # Gets current energy price data in Sweden's energy zone 3.
     today = date.today()
     year = today.strftime("%Y")
     month = today.strftime("%m")
@@ -48,7 +44,6 @@ def get_data(): # Gets current energy price data in Sweden's energy zone 3. 
         return response.json()
     except requests.exceptions.RequestException as error:
         print("An error occurred:", error)
-
 
 def get_weather(): # Gets the current day's forecast.
     with open('api_key.txt', encoding="utf8") as read_file:
@@ -61,12 +56,10 @@ def get_weather(): # Gets the current day's forecast.
     except requests.exceptions.RequestException as error:
         print("An error occurred:", error)
 
-
 def write_to_json(el_data):
     with open("price.json", "w", encoding="utf8") as outfile:
 
         json.dump(el_data, outfile)
-
 
 def extract_data(): # Calculate the percentile to get the lowest prices for the day.
     today_price_list = []
@@ -77,11 +70,12 @@ def extract_data(): # Calculate the percentile to get the lowest prices for the 
         today_price_list.append(result)
 
     numpy_today_price = np.array(today_price_list)
-    price_threshold = np.percentile(numpy_today_price, 40) # Lowest 40%
+    # Geting the lowest 40%
+    price_threshold = np.percentile(numpy_today_price, 40)
     weather_data = get_weather()
     temp_c = weather_data["current"]["temp_c"]
-    with open('threshold.txt', mode='r') as f:
-        temperature_threshold = int(f.readline().strip())
+    with open('threshold.txt', mode='r', encoding="utf8") as read_file:
+        temperature_threshold = int(read_file.readline().strip())
 
     return price_threshold, temperature_threshold, data, temp_c
 
@@ -106,9 +100,10 @@ def process_data(price_threshold, temperature_threshold, data, temp_c):
                 "Ute temperatur": temp_c,
                 "Temperatur gräns": temperature_threshold
                 }
-                with open("app_data.json", "w") as outfile:
-                    json.dump(app_data, outfile)    
+                with open("app_data.json", "w", encoding="utf8") as outfile:
+                    json.dump(app_data, outfile)
             else:
+                #GPIO.output(18, GPIO.LOW)
                 app_data = {
                 "status": "Körs inte med extern styrning",
                 "Pris per kwh": price_kwh,
@@ -116,12 +111,10 @@ def process_data(price_threshold, temperature_threshold, data, temp_c):
                 "Ute temperatur": temp_c,
                 "Temperatur gräns": temperature_threshold
                 }
-                with open("app_data.json", "w") as outfile:
+                with open("app_data.json", "w", encoding="utf8") as outfile:
                     json.dump(app_data, outfile)
         else:
             pass
-
-
 
 def plot_data(price_threshold):
     plt.style.use('dark_background')
@@ -132,8 +125,8 @@ def plot_data(price_threshold):
         datetime.strptime(x, '%Y-%m-%dT%H:%M:%S%z').hour)
         markers_on = [1]
         print(price_threshold)
-        ax = data_frame.plot(x='hour', y="SEK_per_kWh", markevery=markers_on)
-        ax.axhline(y=price_threshold, color='red', linestyle='--', label='Pris gräns')
+        axis = data_frame.plot(x='hour', y="SEK_per_kWh", markevery=markers_on)
+        axis.axhline(y=price_threshold, color='red', linestyle='--', label='Pris gräns')
         plt.xticks(np.arange(0, 24, 2))
         plt.xlabel('Timme på dagen')
         plt.ylabel('Pris: SEK per kWh')
@@ -143,10 +136,7 @@ def plot_data(price_threshold):
         plt.clf()
         plt.cla()
 
-
 schedule.every().second.do(main) # This code will run every hour
 while True:
     schedule.run_pending()
     time.sleep(20)
-
-
