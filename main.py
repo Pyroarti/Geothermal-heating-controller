@@ -124,7 +124,6 @@ def plot_data(price_threshold):
         data_frame['hour'] = data_frame['time_start'].apply(lambda x:
         datetime.strptime(x, '%Y-%m-%dT%H:%M:%S%z').hour)
         markers_on = [1]
-        print(price_threshold)
         axis = data_frame.plot(x='hour', y="SEK_per_kWh", markevery=markers_on)
         axis.axhline(y=price_threshold, color='red', linestyle='--', label='Pris gräns')
         plt.xticks(np.arange(0, 24, 2))
@@ -133,8 +132,6 @@ def plot_data(price_threshold):
         plt.legend()
         plt.savefig('graph.png')
         plt.close('all')
-        plt.clf()
-        plt.cla()
 
 schedule.every().second.do(main) # This code will run every hour
 while True:
